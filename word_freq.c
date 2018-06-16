@@ -38,9 +38,7 @@ void insert(node_t **node, word_t word) {
 		*node = (node_t *)malloc(sizeof(node_t));
 		word_t *wt = (word_t *)malloc(sizeof(word_t));
 		memcpy(wt, &word, sizeof(word_t));
-		(*node)->w = wt;
-		(*node)->n = 1;
-		(*node)->nxt = NULL;
+		**node = (node_t) { .w = wt, .n = 1, .nxt = NULL };
 	}
 	else {
 		node_t * pos = word_pos(*node, &word);
@@ -55,9 +53,7 @@ void insert(node_t **node, word_t word) {
 			t_node->nxt = (node_t *)malloc(sizeof(node_t));
 			word_t *wt = (word_t *)malloc(sizeof(word_t));
 			memcpy(wt, &word, sizeof(word_t));
-			t_node->nxt->w = wt;
-			t_node->nxt->n = 1;
-			t_node->nxt->nxt = NULL;
+			*t_node->nxt = (node_t) { .w = wt, .n = 1, .nxt = NULL };
 		}
 	}
 }
@@ -78,7 +74,7 @@ node_t *tokenzie(const char *str) {
 		}
 	}
 	if (l>1) {
-		word_t word = { p, --l };
+		word_t word = { p, l };
 		insert(&node, word);
 	}
 	return node;
@@ -104,7 +100,7 @@ void free_nodes(node_t *node) {
 }
 
 int main() {
-	char str[] = "abcd aes v sdfsg abcd aes ku  ";
+	char str[] = "abcd aes v sdfsg abcd aes ku";
 	node_t *node = tokenzie(str);
 	print_freq(node);
 	free_nodes(node);
