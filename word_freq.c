@@ -4,19 +4,19 @@
 #include <memory.h>
 
 typedef struct word_t {
-	const char *p;
-	int l;
+	const char *p_str;
+	int len;
 } word_t;
 
 typedef struct node_t {
-	word_t *w;
-	int n;
-	struct node_t *nxt;
+	word_t word;
+	int count;
+	struct node_t *next;
 } node_t;
 
 int compare_words(const word_t *w1, const word_t *w2) {
-	for (int i = 0; i< w1->l; ++i) {
-		if (w1->p[i] != w2->p[i]) {
+	for (int i = 0; i< w1->len; ++i) {
+		if (w1->p_str[i] != w2->p_str[i]) {
 			return 0;
 		}
 	}
@@ -25,35 +25,31 @@ int compare_words(const word_t *w1, const word_t *w2) {
 
 node_t * word_pos(node_t *node, const word_t *word) {
 	while (node) {
-		if (compare_words(node->w, word) == 1) {
+		if (compare_words(&node->word, word) == 1) {
 			return node;
 		}
-		node = node->nxt;
+		node = node->next;
 	}
 	return NULL;
 }
 
-void insert(node_t **node, word_t word) {
+void insert(node_t **node, word_t *word) {
 	if (!*node) {
 		*node = (node_t *)malloc(sizeof(node_t));
-		word_t *wt = (word_t *)malloc(sizeof(word_t));
-		memcpy(wt, &word, sizeof(word_t));
-		**node = (node_t) { .w = wt, .n = 1, .nxt = NULL };
+		**node = (node_t) { *word, 1, NULL };
 	}
 	else {
-		node_t * pos = word_pos(*node, &word);
+		node_t * pos = word_pos(*node, word);
 		if (pos) {
-			++pos->n;
+			++pos->count;
 		}
 		else {
 			node_t *t_node = *node;
-			while (t_node->nxt) {
-				t_node = t_node->nxt;
+			while (t_node->next) {
+				t_node = t_node->next;
 			}
-			t_node->nxt = (node_t *)malloc(sizeof(node_t));
-			word_t *wt = (word_t *)malloc(sizeof(word_t));
-			memcpy(wt, &word, sizeof(word_t));
-			*t_node->nxt = (node_t) { .w = wt, .n = 1, .nxt = NULL };
+			t_node->next = (node_t *)malloc(sizeof(node_t));
+			*t_node->next = (node_t) { *word, 1, NULL };
 		}
 	}
 }
@@ -66,7 +62,7 @@ node_t *tokenzie(const char *str) {
 		++l;
 		if (isspace(*str)) {
 			word_t word = { p, l };
-			insert(&node, word);
+			insert(&node, &word);
 			if (str[1]) {
 				p = ++str;
 			}
@@ -75,26 +71,22 @@ node_t *tokenzie(const char *str) {
 	}
 	if (l>1) {
 		word_t word = { p, l };
-		insert(&node, word);
+		insert(&node, &word);
 	}
 	return node;
 }
 
 void print_freq(const node_t *node) {
 	while (node) {
-		printf("%.*s", node->w->l, node->w->p);
-		printf(" : %d\n", node->n);
-		node = node->nxt;
+		printf("%.*s : %d\n", node->word.len, node->word.p_str, node->count);
+		node = node->next;
 	}
 }
 
 void free_nodes(node_t *node) {
 	while (node) {
 		node_t *t = node;
-		node = node->nxt;
-		if (t->w) {
-			free(t->w);
-		}
+		node = node->next;
 		free(t);
 	}
 }
