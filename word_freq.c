@@ -22,16 +22,6 @@ int compare_words(const word_t *w1, const word_t *w2) {
 	return 1;
 }
 
-node_t * word_pos(node_t *node, const word_t *word) {
-	while (node) {
-		if (compare_words(&node->word, word) == 1) {
-			return node;
-		}
-		node = node->next;
-	}
-	return NULL;
-}
-
 node_t* create(const word_t* word)
 {
 	node_t* t_node = malloc(sizeof(node_t));
