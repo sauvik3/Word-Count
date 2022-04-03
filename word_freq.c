@@ -1,11 +1,10 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
-#include <memory.h>
 
 typedef struct word_t {
 	const char *p_str;
-	int len;
+	size_t len;
 } word_t;
 
 typedef struct node_t {
@@ -33,24 +32,29 @@ node_t * word_pos(node_t *node, const word_t *word) {
 	return NULL;
 }
 
-void insert(node_t **node, word_t *word) {
-	if (!*node) {
-		*node = (node_t *)malloc(sizeof(node_t));
-		**node = (node_t) { *word, 1, NULL };
+node_t* create(const word_t* word)
+{
+	node_t* t_node = malloc(sizeof(node_t));
+	if (t_node != NULL) {
+		*t_node = (node_t){ *word, 1, NULL };
+	}
+	return t_node;
+}
+
+void insert(node_t** node, const word_t* word) {
+	if (*node == NULL) {
+		*node = create(word);
 	}
 	else {
-		node_t * pos = word_pos(*node, word);
-		if (pos) {
-			++pos->count;
-		}
-		else {
-			node_t *t_node = *node;
-			while (t_node->next) {
-				t_node = t_node->next;
+		node_t* t_node = *node;
+		while (t_node->next != NULL) {
+			if (compare_words(&t_node->word, word)) {
+				++t_node->count;
+				return;
 			}
-			t_node->next = (node_t *)malloc(sizeof(node_t));
-			*t_node->next = (node_t) { *word, 1, NULL };
+			t_node = t_node->next;
 		}
+		t_node->next = create(word);
 	}
 }
 
@@ -75,6 +79,10 @@ node_t* tokenzie(const char* str) {
 			++len;
 		}
 		++str;
+	}
+	if (len > 0) {
+		word_t word = { p, len };
+		insert(&node, &word);
 	}
 	
 	return node;
