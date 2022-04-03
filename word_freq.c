@@ -54,25 +54,29 @@ void insert(node_t **node, word_t *word) {
 	}
 }
 
-node_t *tokenzie(const char *str) {
-	node_t *node = NULL;
-	const char *p = str;
-	int l = 0;
-	while (*str++) {
-		++l;
+node_t* tokenzie(const char* str) {
+	node_t* node = NULL;
+	const char* p = NULL;
+	size_t len = 0;
+	short fl = 0;
+	while (*str) {
 		if (isspace(*str)) {
-			word_t word = { p, l };
-			insert(&node, &word);
-			if (str[1]) {
-				p = ++str;
+			if (fl == 1) {
+				word_t word = { p, len };
+				insert(&node, &word);
+				len = 0;
+				fl = 0;
 			}
-			l = 0;
+		} else {
+			if (len == 0) {
+				p = str;
+				fl = 1;
+			}
+			++len;
 		}
+		++str;
 	}
-	if (l>1) {
-		word_t word = { p, l };
-		insert(&node, &word);
-	}
+	
 	return node;
 }
 
